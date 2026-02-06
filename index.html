@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Miner</title>
+    <script src="https://telegram.org"></script>
+    <script src="https://sad.adsgram.ai"></script>
+    <style>
+        body { font-family: sans-serif; background: #000; color: #fff; text-align: center; display: flex; flex-direction: column; justify-content: center; height: 100vh; margin: 0; }
+        .balance { font-size: 48px; color: #00e5ff; margin-bottom: 20px; }
+        button { background: #00e5ff; color: #000; border: none; padding: 20px 40px; border-radius: 15px; font-weight: bold; font-size: 18px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="balance" id="score">0</div>
+    <button onclick="showAd()">📺 ДИВИТИСЬ РЕКЛАМУ</button>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        let score = 0;
+
+        // Тестовий блок реклами AdsGram
+        const AdController = window.Adsgram.init({ blockId: "int-4537" });
+
+        async function showAd() {
+            try {
+                const result = await AdController.show();
+                if (result.done) {
+                    score += 100;
+                    document.getElementById('score').innerText = score;
+                    alert("Успішно! +100 балів");
+                    // Тут пізніше додамо запит на Render для збереження в базу
+                }
+            } catch (e) {
+                alert("Реклама недоступна");
+            }
+        }
+    </script>
+</body>
+</html>
