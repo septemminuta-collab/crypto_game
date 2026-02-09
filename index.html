@@ -4,49 +4,82 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crypto Miner Game</title>
-    <!-- Підключаємо Telegram SDK -->
+    <!-- ПРАВИЛЬНІ СКРИПТИ SDK -->
     <script src="https://telegram.org"></script>
-    <!-- Підключаємо AdsGram SDK -->
     <script src="https://sad.adsgram.ai"></script>
     <style>
-        body { font-family: 'Arial', sans-serif; background: #0f0f0f; color: white; text-align: center; padding-top: 50px; }
-        .balance-box { background: #1a1a1a; border: 2px solid #00d4ff; border-radius: 20px; padding: 20px; display: inline-block; min-width: 200px; margin-bottom: 30px; }
+        body { font-family: 'Arial', sans-serif; background: #0f0f0f; color: white; text-align: center; padding-top: 50px; margin: 0; }
+        .balance-box { background: #1a1a1a; border: 2px solid #00d4ff; border-radius: 20px; padding: 20px; display: inline-block; min-width: 200px; margin-bottom: 30px; box-shadow: 0 0 20px rgba(0, 212, 255, 0.1); }
         #balance { font-size: 48px; color: #00d4ff; font-weight: bold; }
-        .btn { background: linear-gradient(45deg, #00d4ff, #0055ff); border: none; color: white; padding: 20px 40px; border-radius: 15px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3); }
-        .btn:active { transform: scale(0.95); }
+        .btn { background: linear-gradient(45deg, #00d4ff, #0055ff); border: none; color: white; padding: 20px 40px; border-radius: 15px; font-size: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3); transition: 0.2s; }
+        .btn:active { transform: scale(0.95); opacity: 0.8; }
+        .user-info { margin-bottom: 10px; color: #888; font-size: 14px; }
     </style>
 </head>
 <body>
     <h1>🔋 Енерго-Майнер</h1>
+    
+    <div class="user-info" id="username">Завантаження...</div>
+
     <div class="balance-box">
         <div id="balance">0</div>
-        <p>балів</p>
+        <p style="margin: 5px 0 0;">балів</p>
     </div>
     <br>
-    <button class="btn" onclick="showAd()">📺 ДИВИТИСЬ РЕКЛАМУ (+100)</button>
+    <button class="btn" id="adBtn" onclick="showAd()">📺 ДИВИТИСЬ РЕКЛАМУ (+100)</button>
 
     <script>
         const tg = window.Telegram.WebApp;
-        tg.expand(); // Розгортаємо гру на весь екран
+        tg.expand(); 
 
-        let score = 0;
+        // Отримання даних користувача
+        const user = tg.initDataUnsafe.user;
+        if (user) {
+            document.getElementById('username').innerText = user.first_name + " (ID: " + user.id + ")";
+        }
 
-        // ВАЖЛИВО: Заміни 'int-4537' на свій Block ID з AdsGram, коли він пройде модерацію
+        // --- НАЛАШТУВАННЯ ---
+        // 1. Встав своє посилання з Render (без косої риски в кінці!)
+        const SERVER_URL = "ТВОЄ_ПОСИЛАННЯ_З_RENDER"; 
+        
+        // 2. Встав свій Block ID (залиш int-4537 для тесту)
         const AdController = window.Adsgram.init({ blockId: "int-4537" }); 
 
+        // Функція показу реклами
         async function showAd() {
+            const btn = document.getElementById('adBtn');
+            btn.disabled = true; // Блокуємо кнопку на час запиту
+            
             try {
                 const result = await AdController.show();
+                
                 if (result.done) {
-                    // Рекламу подивилися повністю
-                    score += 100;
-                    document.getElementById('balance').innerText = score;
-                    tg.HapticFeedback.notificationOccurred('success'); // Вібрація
-                    alert("Чудово! Ти отримав 100 балів.");
+                    // Якщо реклама подивилися — шлемо запит на Render
+                    const response = await fetch(`${SERVER_URL}/reward`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            user_id: user.id,
+                            points: 100
+                        })
+                    });
+
+                    if (response.ok) {
+                        // Оновлюємо візуальний баланс
+                        let currentBalance = parseInt(document.getElementById('balance').innerText);
+                        document.getElementById('balance').innerText = currentBalance + 100;
+                        
+                        tg.HapticFeedback.notificationOccurred('success');
+                        tg.showAlert("Чудово! +100 балів збережено!");
+                    } else {
+                        tg.showAlert("Помилка збереження на сервері!");
+                    }
                 }
             } catch (error) {
                 console.error(error);
-                alert("Реклама вантажиться, спробуй ще раз через пару секунд.");
+                tg.showAlert("Реклама недоступна. Спробуйте пізніше.");
+            } finally {
+                btn.disabled = false;
             }
         }
     </script>
