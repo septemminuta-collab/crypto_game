@@ -2,97 +2,87 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Energy Miner Pro v1.2</title>
-    <!-- Обов'язкові SDK (без них нічого не працюватиме) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Energy Miner Pro | Official App</title>
+    <!-- ПРАВИЛЬНІ SDK -->
     <script src="https://telegram.org"></script>
     <script src="https://sad.adsgram.ai"></script>
-    <script src="https://unpkg.com"></script>
     <style>
-        :root { --main-cyan: #00d4ff; --dark-bg: #0a0a0b; --card-bg: #161618; }
-        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--dark-bg); color: #fff; text-align: center; margin: 0; padding: 20px; overflow-x: hidden; }
+        :root { --main-blue: #00d4ff; --dark-bg: #0d0d0f; --card-bg: #1a1a1c; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--dark-bg); color: #fff; margin: 0; padding: 15px; text-align: center; }
         
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 10px; }
-        .user-pill { background: rgba(0, 212, 255, 0.1); border: 1px solid var(--main-cyan); padding: 5px 15px; border-radius: 50px; font-size: 14px; font-weight: bold; color: var(--main-cyan); }
-        
-        .energy-card { 
-            background: linear-gradient(145deg, #1c1c1e 0%, #111 100%); 
-            border: 1px solid #333; 
-            border-radius: 30px; 
-            padding: 40px 20px; 
-            margin: 20px 0; 
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
-            position: relative;
-            overflow: hidden;
+        .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px; }
+        .badge { background: rgba(0, 212, 255, 0.1); border: 1px solid var(--main-blue); padding: 4px 12px; border-radius: 50px; font-size: 12px; color: var(--main-blue); }
+
+        .mining-card { 
+            background: linear-gradient(135deg, #1c1c1e 0%, #111 100%); 
+            border: 1px solid #333; border-radius: 30px; 
+            padding: 40px 20px; margin: 20px 0;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         }
-        .energy-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(0, 212, 255, 0.05) 0%, transparent 70%); }
+        #balance { font-size: 60px; color: var(--main-blue); font-weight: 800; text-shadow: 0 0 20px rgba(0, 212, 255, 0.4); }
+        .label { color: #666; font-size: 11px; letter-spacing: 4px; text-transform: uppercase; margin-top: 5px; }
 
-        #balance { font-size: 64px; color: var(--main-cyan); font-weight: 800; line-height: 1; text-shadow: 0 0 20px rgba(0, 212, 255, 0.4); }
-        .label { color: #888; font-size: 12px; letter-spacing: 3px; margin-top: 10px; text-transform: uppercase; }
-
-        .controls { display: flex; flex-direction: column; gap: 15px; margin-top: 30px; }
-        
-        .btn-main { 
+        .btn-action { 
             background: linear-gradient(90deg, #00d4ff, #0055ff); 
-            border: none; color: white; padding: 22px; 
+            border: none; color: white; padding: 20px; 
             border-radius: 20px; font-size: 18px; font-weight: bold; 
-            cursor: pointer; transition: 0.3s; 
-            box-shadow: 0 10px 25px rgba(0, 85, 255, 0.4);
+            width: 100%; margin-bottom: 12px; cursor: pointer;
+            box-shadow: 0 8px 20px rgba(0, 85, 255, 0.3);
         }
-        .btn-main:active { transform: scale(0.97); }
-        .btn-main:disabled { background: #333; box-shadow: none; opacity: 0.6; }
-
-        .btn-wallet { background: #222; border: 1px solid #444; color: #ccc; padding: 15px; border-radius: 18px; font-size: 15px; cursor: pointer; transition: 0.3s; }
-        .btn-wallet:hover { border-color: var(--main-cyan); color: #fff; }
-
-        .info-box { text-align: left; background: var(--card-bg); border-radius: 20px; padding: 20px; margin-top: 30px; border: 1px solid #222; }
-        .info-box h3 { font-size: 14px; color: var(--main-cyan); margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 1px; }
-        .info-box p { font-size: 13px; color: #aaa; line-height: 1.6; margin: 0; }
+        .btn-wallet { background: #222; border: 1px solid #444; color: #fff; padding: 14px; border-radius: 18px; width: 100%; font-size: 14px; cursor: pointer; }
         
-        .footer { margin-top: 30px; font-size: 11px; color: #444; text-transform: uppercase; letter-spacing: 1px; }
+        .roadmap { text-align: left; background: var(--card-bg); border-radius: 20px; padding: 20px; margin-top: 25px; border: 1px solid #222; }
+        .roadmap h3 { font-size: 14px; color: var(--main-blue); margin: 0 0 12px 0; letter-spacing: 1px; }
+        .step { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 13px; color: #aaa; }
+        .done { color: #4caf50; }
+
+        .footer { margin-top: 30px; font-size: 10px; color: #333; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div class="user-pill" id="user-name">Завантаження...</div>
-        <div style="font-size: 12px; color: #555;">v1.2.0-PRO</div>
+    <div class="top-bar">
+        <div class="badge" id="user-pill">MINER ID: ...</div>
+        <div style="color: #444; font-size: 12px;">v1.2.5 PRO</div>
     </div>
 
-    <div class="energy-card">
+    <div class="mining-card">
         <div id="balance">0</div>
-        <div class="label">Energy Points</div>
+        <div class="label">Total Energy</div>
     </div>
 
-    <div class="controls">
-        <button class="btn-main" id="adBtn" onclick="showAd()">⚡ ЗАРЯДИТИ ЕНЕРГІЮ (+100)</button>
-        <button class="btn-wallet" onclick="connectWallet()">💎 CONNECT TON WALLET</button>
+    <button class="btn-action" id="adBtn" onclick="showAd()">⚡ ЗАРЯДИТИ ЕНЕРГІЮ (+100)</button>
+    <button class="btn-wallet" onclick="connectWallet()">💎 ПІДКЛЮЧИТИ ГАМАНЕЦЬ TON</button>
+
+    <div class="roadmap">
+        <h3>ROADMAP 2026</h3>
+        <div class="step done">● Запуск Mini App та Бази Даних</div>
+        <div class="step">○ Інтеграція TonConnect (Web3)</div>
+        <div class="step">○ Глобальна Таблиця Лідерів</div>
+        <div class="step">○ Обмін балів на $TON</div>
     </div>
 
-    <div class="info-box">
-        <h3>ЯК ЦЕ ПРАЦЮЄ</h3>
-        <p>Накопичуйте бали, переглядаючи спонсорський контент. Кожен успішний перегляд додає 100 балів до вашої бази даних. Підключення гаманця TON дозволить приймати участь у майбутніх дропах.</p>
-    </div>
-
-    <p class="footer">Verified by AdsGram Network & Telegram Web Apps</p>
+    <div class="footer">Ecosystem Verified Account • AdsGram Network</div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
         tg.ready();
 
+        // КОНФІГУРАЦІЯ
         const SERVER_URL = "https://traffic-backend-c674.onrender.com";
-        const AdController = window.Adsgram.init({ blockId: "int-4537" });
+        const AdController = window.Adsgram.init({ blockId: "int-4537" }); // ТЕСТОВИЙ ID ДЛЯ МОДЕРАТОРІВ
 
-        // Налаштування імені користувача
+        // Завантаження даних юзера
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            document.getElementById('user-name').innerText = tg.initDataUnsafe.user.first_name.toUpperCase();
+            document.getElementById('user-pill').innerText = "USER: " + tg.initDataUnsafe.user.first_name.toUpperCase();
         }
 
         async function showAd() {
             const btn = document.getElementById('adBtn');
             btn.disabled = true;
-            btn.innerText = "ЗАВАНТАЖЕННЯ...";
+            btn.innerText = "З'ЄДНАННЯ...";
 
             try {
                 const result = await AdController.show();
@@ -108,13 +98,12 @@
                     
                     if (response.ok) {
                         let b = document.getElementById('balance');
-                        let newVal = parseInt(b.innerText) + 100;
-                        b.innerText = newVal;
+                        b.innerText = parseInt(b.innerText) + 100;
                         tg.HapticFeedback.notificationOccurred('success');
                     }
                 }
             } catch (e) {
-                tg.showAlert("Спробуйте ще раз за декілька секунд.");
+                tg.showAlert("Реклама готується. Спробуйте через 10 секунд.");
             } finally {
                 btn.disabled = false;
                 btn.innerText = "⚡ ЗАРЯДИТИ ЕНЕРГІЮ (+100)";
@@ -122,8 +111,8 @@
         }
 
         function connectWallet() {
-            tg.showConfirm("Підключення гаманця TONConnect буде доступне після завершення синхронізації з AdsGram. Бажаєте підписатися на оновлення?", (confirmed) => {
-                if(confirmed) tg.showAlert("Ми повідомимо вас через бот!");
+            tg.showConfirm("Ви входите в зону Web3. Підключення гаманця буде доступне після активації TON-вузла. Хочете бути в списку очікування?", (ok) => {
+                if(ok) tg.showAlert("Ваш ID додано до черги на AirDrop!");
             });
         }
     </script>
